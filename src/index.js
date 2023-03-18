@@ -9,7 +9,7 @@ import mergeTracks from './mergeTracks.js';
 
 function getContext() {
   const argv = yargs(process.argv.slice(2))
-    .scriptName("bilibili-download")
+    .scriptName('bldl')
     .usage('$0 [options] <input_url> [out_file]')
     .option('with-credential', {
       type: 'string',

@@ -1,5 +1,5 @@
 {
-  "name": "bilibili-download",
+  "name": "bldl",
   "version": "0.0.1",
   "description": "A CLI tool for downloading Bilibili streams",
   "type": "module",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/samuraime/bilibili-download.git"
+    "url": "git+https://github.com/samuraime/bldl.git"
   },
   "keywords": [
     "Bilibili",
@@ -31,7 +31,7 @@
     "audio"
   ],
   "bugs": {
-    "url": "https://github.com/samuraime/bilibili-download/issues"
+    "url": "https://github.com/samuraime/bldl/issues"
   },
-  "homepage": "https://github.com/samuraime/bilibili-download#readme"
+  "homepage": "https://github.com/samuraime/bldl#readme"
 }

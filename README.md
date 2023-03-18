@@ -1,11 +1,11 @@
-# bilibili-download
+# bldl
 
 > Just another CLI tool for downloading Bilibili streams
 
 ## Install
 
 ```sh
-npm install -g bilibili-download
+npm install -g bldl
 ```
 
 And require [ffmpeg](https://ffmpeg.org/download.html) for merging track files, for Homebrew users:
@@ -16,10 +16,10 @@ brew install ffmpeg
 
 ## How to use
 
-`bilibili-download --help`
+`bldl --help`
 
 ```
-bilibili-download [options] input_url [out_file]
+bldl [options] input_url [out_file]
 
 Options:
   --version          Show version number                               [boolean]
@@ -36,13 +36,13 @@ Options:
 Basic
 
 ```sh
-bilibili-download https://www.bilibili.com/video/BV1ac411E7jr
+bldl https://www.bilibili.com/video/BV1ac411E7jr
 ```
 
 For high quality (大会员) streams, need to set your credential, just grab `SESSDATA` from your browser cookies.
 
 ```sh
-bilibili-download --with-credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1ac411E7jr
+bldl --with-credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1ac411E7jr
 ```
 
 ## License
