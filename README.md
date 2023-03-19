@@ -19,7 +19,13 @@ brew install ffmpeg
 `bldl --help`
 
 ```
-bldl [options] <input_url> [out_file]
+Commands:
+  bldl <url> [output]               Download stream                    [default]
+  bldl set-credential <credential>  Store credential for downloading streams
+
+Positionals:
+  url     URL to download stream from                                   [string]
+  output  Path to save stream to                                        [string]
 
 Options:
   --version          Show version number                               [boolean]
