@@ -29,7 +29,7 @@ async function mergeTracks(context, {metadata, tracks}) {
     throw new Error('Fail to merge tracks');
   });
 
-  if (!context.keepTracks) {
+  if (!context.keepTmpTracks) {
     await Promise.all(
       tracks.map((track) => fs.unlink(track.path)),
     ).catch(() => {

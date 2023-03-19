@@ -11,7 +11,7 @@ function getContext() {
   const argv = yargs(process.argv.slice(2))
     .scriptName('bldl')
     .usage('$0 [options] <input_url> [out_file]')
-    .option('with-credential', {
+    .option('credential', {
       type: 'string',
       describe: 'Bilibili SESSDATA from browser Cookies',
     })
@@ -22,9 +22,9 @@ function getContext() {
     .option('tmp-dir', {
       type: 'string',
       describe: 'Directory to save temporary tracks',
-      default: path.resolve(os.tmpdir(), 'bili-downloads'),
+      default: path.resolve(os.tmpdir(), 'bldl'),
     })
-    .option('keep-tracks', {
+    .option('keep-tmp-tracks', {
       type: 'boolean',
       describe: 'Whether to keep temporary tracks after merging',
       default: false,
@@ -34,10 +34,10 @@ function getContext() {
 
   const {
     _: [url, output],
-    withCredential: credential,
+    credential,
     videoCodec,
     tmpDir,
-    keepTracks,
+    keepTmpTracks,
   } = argv;
 
   const videoCodecAlias = {
@@ -52,7 +52,7 @@ function getContext() {
     credential,
     videoCodec: videoCodec && videoCodecAlias[videoCodec],
     tmpDir: path.resolve(tmpDir),
-    keepTracks,
+    keepTmpTracks,
   };
 }
 

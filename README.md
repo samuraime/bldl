@@ -19,14 +19,16 @@ brew install ffmpeg
 `bldl --help`
 
 ```
-bldl [options] input_url [out_file]
+bldl [options] <input_url> [out_file]
 
 Options:
   --version          Show version number                               [boolean]
-  --with-credential  Bilibili SESSDATA from browser Cookies             [string]
+  --credential       Bilibili SESSDATA from browser Cookies             [string]
+  --video-codec      Filter out video tracks by given codec, e.g. avc, hevc, av1
+                     , or more exact codec string                       [string]
   --tmp-dir          Directory to save temporary tracks
-                                 [string] [default: "OS_TMP_DIR/bili-downloads"]
-  --keep-tracks      Whether to keep temporary tracks after merging
+                                         [string] [default: "{OS_TMP_DIR}/bldl"]
+  --keep-tmp-tracks  Whether to keep temporary tracks after merging
                                                       [boolean] [default: false]
   --help             Show help                                         [boolean]
 ```
@@ -42,7 +44,7 @@ bldl https://www.bilibili.com/video/BV1ac411E7jr
 For high quality (大会员) streams, need to set your credential, just grab `SESSDATA` from your browser cookies.
 
 ```sh
-bldl --with-credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1ac411E7jr
+bldl --credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1ac411E7jr
 ```
 
 ## License
