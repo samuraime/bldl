@@ -20,9 +20,9 @@ function getPlayInfoFromScript(html) {
 
   return {
     videos: video.map((stream) => ({
-      id: stream.id,
+      quality: stream.id,
       mimeType: stream.mimeType,
-      codecs: stream.codecs,
+      codec: stream.codecs,
       frameRate: stream.frameRate,
       width: stream.width,
       height: stream.height,
@@ -31,7 +31,7 @@ function getPlayInfoFromScript(html) {
     })),
     audios: audio.map((stream) => ({
       mimeType: stream.mimeType,
-      codecs: stream.codecs,
+      codec: stream.codecs,
       url: stream.baseUrl,
       type: 'audio',
     })),
@@ -66,12 +66,18 @@ function getPlayInfo(credential, url) {
     }));
 }
 
+function getBestVideoTracks(codec, tracks) {
+  return [...tracks].filter((track) => (
+    !codec || track.codec.startsWith(codec)
+  ));
+}
+
 function getTracks(context, url) {
   return getPlayInfo(context.credential, url)
     .then(({ metadata, videos, audios }) => ({
       metadata,
       tracks: [
-        ...videos.slice(0, 1),
+        ...getBestVideoTracks(context.videoCodec, videos).slice(0, 1),
         ...audios.slice(0, 1),
       ],
     }));

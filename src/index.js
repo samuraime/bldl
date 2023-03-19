@@ -15,6 +15,10 @@ function getContext() {
       type: 'string',
       describe: 'Bilibili SESSDATA from browser Cookies',
     })
+    .option('video-codec', {
+      type: 'string',
+      describe: 'Filter out video tracks by given codec, e.g. avc, hevc, av1, or more exact codec string',
+    })
     .option('tmp-dir', {
       type: 'string',
       describe: 'Directory to save temporary tracks',
@@ -31,14 +35,22 @@ function getContext() {
   const {
     _: [url, output],
     withCredential: credential,
+    videoCodec,
     tmpDir,
     keepTracks,
   } = argv;
+
+  const videoCodecAlias = {
+    avc: 'avc1',
+    hevc: 'hev1',
+    av1: 'av01',
+  };
 
   return {
     url,
     output: output ? path.resolve(output) : undefined,
     credential,
+    videoCodec: videoCodec && videoCodecAlias[videoCodec],
     tmpDir: path.resolve(tmpDir),
     keepTracks,
   };
