@@ -1,8 +1,11 @@
 import fs from 'node:fs/promises';
 import { createWriteStream } from 'node:fs';
 import path from 'node:path';
-import stream from 'node:stream/promises';
+import stream from 'node:stream';
+import { promisify } from 'node:util';
 import got from 'got';
+
+const pipeline = promisify(stream.pipeline);
 
 function makeDirectoryIfNeeded(directoryPath) {
   const resolvedPath = path.resolve(directoryPath);
@@ -21,7 +24,7 @@ export async function downloadTrack({ track, credential, saveToDirectory, onProg
 
   const saveToFile = path.resolve(saveToDirectory, `${track.type}${path.extname(urlPath)}`);
 
-  return stream.pipeline(
+  return pipeline(
     got.stream(track.url, makeGotOptions(credential))
       // {percent, transferred, total}
       .on('downloadProgress', onProgress),
