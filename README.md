@@ -4,14 +4,14 @@
 
 ## Install
 
-```sh
-npm install -g bldl
-```
-
-And require [ffmpeg](https://ffmpeg.org/download.html) for merging track files, for Homebrew users:
+Prerequisites: install [ffmpeg](https://ffmpeg.org/download.html) for merging tracks and add it to env path. For Homebrew users:
 
 ```sh
 brew install ffmpeg
+```
+
+```sh
+npm install -g bldl
 ```
 
 ## How to use
@@ -41,16 +41,15 @@ Options:
 
 ### Examples
 
-Basic
-
 ```sh
+bldl set-credential {SESSDATA_FROM_COOKIES} # Store Bilibli auth credential for downloading high quality streams
 bldl https://www.bilibili.com/video/BV1ac411E7jr
 ```
 
-For high quality (大会员) streams, need to set your credential, just grab `SESSDATA` from your browser cookies.
+Or for one-off use:
 
 ```sh
-bldl --credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1ac411E7jr
+npx bldl --credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1ac411E7jr
 ```
 
 ## License

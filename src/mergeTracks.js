@@ -11,12 +11,6 @@ function escapeQuote(string) {
 }
 
 async function mergeTracks(context, {metadata, tracks}) {
-  try {
-    await promisifiedExec('which ffmpeg');
-  } catch {
-    throw new Error('ffmpeg is required for merging tracks, try to download from https://ffmpeg.org/download.html');
-  }
-
   const output = context.output ?? path.resolve(`${metadata.title}.mp4`);
 
   const inputs = tracks

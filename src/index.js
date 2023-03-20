@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
+import { execSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import settings from './settings.js';
@@ -60,6 +61,13 @@ yargs(process.argv.slice(2))
         })
     },
     (argv) => {
+      try {
+        execSync('ffmpeg -version');
+      } catch {
+        console.error('ffmpeg is required for merging tracks, try to download from https://ffmpeg.org/download.html');
+        process.exit(1);
+      }
+
       const context = getContext(argv);
 
       return Promise.resolve(context.url)
