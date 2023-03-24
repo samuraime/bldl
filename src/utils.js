@@ -31,22 +31,20 @@ export async function downloadTrack({ track, credential, saveToDirectory, onProg
     createWriteStream(saveToFile),
   )
     .then(() => saveToFile)
-    .catch((error) => {
+    .catch(() => {
       throw new Error(`Fail to download stream: ${track.url}`)
     });
 }
 
-export function makeGotOptions(credential) {
-  const defaultHTTPHeaders = {
-    origin: 'https://www.bilibili.com',
-    referer: 'https://www.bilibili.com',
-    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
-  };
+export function makeGotOptions(credential, url) {
+  const defaultOrigin = 'https://www.bilibili.com';
 
   return {
     headers: {
-      ...defaultHTTPHeaders,
       cookie: `SESSDATA=${credential}`,
+      origin: url ? new URL(url).origin : defaultOrigin,
+      referer: url || defaultOrigin,
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
     },
   };
 }

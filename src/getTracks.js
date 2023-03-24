@@ -12,11 +12,8 @@ function parseJsonFromFirstMatch(string, regexp) {
   return JSON.parse(matches[1]);
 }
 
-function getPlayInfoFromScript(html) {
-  const { video, audio } = parseJsonFromFirstMatch(
-    html,
-    /<script>window.__playinfo__=(.+?)<\/script>/s,
-  ).data.dash;
+function getPlayInfoFromPlayAPIResponse(data) {
+  const { video, audio } = data.dash;
 
   return {
     videos: video.map((stream) => ({
@@ -38,7 +35,16 @@ function getPlayInfoFromScript(html) {
   };
 }
 
-function getVideoInfoFromScript(html) {
+function getUGCPlayInfoFromScript(html) {
+  const { data } = parseJsonFromFirstMatch(
+    html,
+    /<script>window.__playinfo__=(.+?)<\/script>/s,
+  );
+
+  return getPlayInfoFromPlayAPIResponse(data);
+}
+
+function getUGCMetadataFromScript(html) {
   const { videoData } = parseJsonFromFirstMatch(
     html,
     /<script>window.__INITIAL_STATE__=(.+?);\(/s,
@@ -51,19 +57,101 @@ function getVideoInfoFromScript(html) {
   };
 }
 
-function getPlayInfo(credential, url) {
+function getUGCMediaInfo(credential, url) {
   return got
-    .get(url, makeGotOptions(credential))
+    .get(url, makeGotOptions(credential, url))
     .text()
     .then((html) => Promise.all([
-      getVideoInfoFromScript(html),
-      getPlayInfoFromScript(html),
+      getUGCMetadataFromScript(html),
+      getUGCPlayInfoFromScript(html),
     ]))
     .then(([metadata, { videos, audios }]) => ({
       metadata,
       videos,
       audios,
     }));
+}
+
+const getPGCPlayParams = (episodeId) => (html) => {
+  const { title, episodes } = parseJsonFromFirstMatch(
+    html,
+    /<script\s+id="__NEXT_DATA__"\s+type="application\/json">(.+?)<\/script>/si,
+  )
+    .props.pageProps.dehydratedState.queries[0].state.data.mediaInfo;
+
+  const episode = episodeId
+    ? episodes.find(({ ep_id }) => ep_id.toString() === episodeId)
+    : episodes[0]; // Should be from a season, select first episode
+
+  return {
+    metadata: {
+      title: title || episode.title,
+      cover: episode.cover,
+      duration: episode.duration,
+    },
+    playAPIParams: {
+      aid: episode.aid,
+      cid: episode.cid,
+      ep_id: episode.ep_id,
+      support_multi_audio: true,
+      fnval: 4048,
+    },
+  };
+}
+
+function getPGCPlayInfo(gotOptions) {
+  return got
+    .get('https://api.bilibili.com/pgc/player/web/playurl', gotOptions)
+    .json()
+    .then(({ result }) => result)
+    .then(getPlayInfoFromPlayAPIResponse)
+    .catch(() => {
+      throw new Error('Fail to get PGC play info');
+    });
+}
+
+const getPGCEpisode = (episodeId) => (credential, url) => {
+  const gotOptions = makeGotOptions(credential);
+
+  return got
+    .get(url, gotOptions)
+    .text()
+    .then(getPGCPlayParams(episodeId))
+    .then(({ metadata, playAPIParams }) => (
+      Promise.all([
+        metadata,
+        getPGCPlayInfo({
+          ...gotOptions,
+          searchParams: playAPIParams,
+        }),
+      ])
+    ))
+    .then(([metadata, { videos, audios }]) => ({
+      metadata,
+      videos,
+      audios,
+    }));
+}
+
+function findMediaInfoHandler(url) {
+  let matches;
+
+  // https://www.bilibili.com/video/BV1ac411E7jr
+  if (matches = /\/video\/BV(\w+)/.test(url)) { // UGC
+    return getUGCMediaInfo;
+  }
+
+  // https://www.bilibili.com/bangumi/play/ss12548
+  if (matches = /\/bangumi\/play\/ss(\d+)/) { // PGC Season
+    return getPGCEpisode();
+  }
+
+  // https://www.bilibili.com/bangumi/play/ep199612
+  if (matches = /\/bangumi\/play\/ep(\d+)/.test(url)) { // PGC Episode
+    return getPGCEpisode(matches[1]);
+  }
+
+  throw new Error('Don\'t support to download streams from this type of URL');
 }
 
 function getBestVideoTracks(codec, tracks) {
@@ -73,7 +161,9 @@ function getBestVideoTracks(codec, tracks) {
 }
 
 function getTracks(context, url) {
-  return getPlayInfo(context.credential, url)
+  const getMediaInfo = findMediaInfoHandler(url);
+
+  return getMediaInfo(context.credential, url)
     .then(({ metadata, videos, audios }) => ({
       metadata,
       tracks: [
