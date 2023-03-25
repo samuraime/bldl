@@ -5,6 +5,10 @@ import cliProgress from 'cli-progress';
 import curry from 'lodash/fp/curry.js';
 import { downloadTrack } from './utils.js';
 
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 function downloadTracks(context, { metadata, tracks }) {
   const multiBar = new cliProgress.MultiBar(
     {
@@ -41,7 +45,10 @@ function downloadTracks(context, { metadata, tracks }) {
       credential: context.credential,
       saveToDirectory,
       onProgress: ({ percent, transferred, total }) => {
-        bar.update(percent, { transferred, size: total });
+        bar.update(percent, {
+          transferred: numberWithCommas(transferred),
+          size: numberWithCommas(total),
+        });
       },
     })
       .then(((downloadedTrackFile) => ({
