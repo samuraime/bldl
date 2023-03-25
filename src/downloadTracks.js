@@ -26,6 +26,8 @@ function downloadTracks(context, { metadata, tracks }) {
       return undefined;
     }
 
+    multiBar.stop();
+
     return fs.rmSync(saveToDirectory, { recursive: true });
   });
 
@@ -37,8 +39,6 @@ function downloadTracks(context, { metadata, tracks }) {
       transferred: 0,
       size: 'Unknown',
     });
-
-    context.cleanup.register(() => bar.stop());
 
     return downloadTrack({
       track,

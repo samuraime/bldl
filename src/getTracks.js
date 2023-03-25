@@ -86,7 +86,9 @@ const getPGCPlayParams = (episodeId) => (html) => {
 
   return {
     metadata: {
-      title: title || episode.title,
+      title: [title, episode.long_title || episode.title]
+        .filter(Boolean)
+        .join('-'),
       cover: episode.cover,
       duration: episode.duration,
     },
@@ -148,7 +150,7 @@ function findMediaInfoHandler(url) {
   }
 
   // https://www.bilibili.com/bangumi/play/ep199612
-  const episodeId = /\/bangumi\/play\/ep(\d+)/.test(url)?.[1];
+  const episodeId = url.match(/\/bangumi\/play\/ep(\d+)/)?.[1];
 
   if (episodeId) {
     // PGC Episode
