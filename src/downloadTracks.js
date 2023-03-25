@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises';
+import { rmSync } from 'node:fs';
 import path from 'node:path';
 import cliProgress from 'cli-progress';
 import curry from 'lodash/fp/curry.js';
@@ -13,6 +15,16 @@ function downloadTracks(context, { metadata, tracks }) {
     cliProgress.Presets.shades_grey,
   );
 
+  const saveToDirectory = path.resolve(context.tmpDir, metadata.title);
+
+  context.cleanup.register(() => {
+    if (context.keepTmpTracks) { // Lazy evaluation in case we'd like to keep them in some error cases
+      return;
+    }
+
+    return rmSync(saveToDirectory, { recursive: true });
+  });
+
   const downloadedTracks = tracks.map((track) => {
     const bar = multiBar.create(1, 0, {
       title: metadata.title,
@@ -22,10 +34,12 @@ function downloadTracks(context, { metadata, tracks }) {
       size: 'Unknown',
     });
 
+    context.cleanup.register(() => bar.stop());
+
     return downloadTrack({
       track,
       credential: context.credential,
-      saveToDirectory: path.resolve(context.tmpDir, metadata.title),
+      saveToDirectory,
       onProgress: ({ percent, transferred, total }) => {
         bar.update(percent, { transferred, size: total });
       },

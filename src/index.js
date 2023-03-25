@@ -9,6 +9,31 @@ import getTracks from './getTracks.js';
 import downloadTracks from './downloadTracks.js';
 import mergeTracks from './mergeTracks.js';
 
+
+
+function makeCleanUpManager() {
+  const handlers = [];
+
+  function register(handler) {
+    handlers.unshift(handler); // LIFO
+  }
+
+  async function start() {
+    try {
+      for (const handler of handlers) {
+        handler(); // Have to be sync function since cleanup will be called in `exit` event
+      }
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
+
+  return {
+    register,
+    start,
+  };
+}
+
 function getContext(argv) {
   const videoCodecAlias = {
     avc: 'avc1',
@@ -23,6 +48,7 @@ function getContext(argv) {
     videoCodec: argv.videoCodec && videoCodecAlias[argv.videoCodec],
     tmpDir: path.resolve(argv.tmpDir),
     keepTmpTracks: argv.keepTmpTracks,
+    cleanup: makeCleanUpManager(),
   };
 }
 
@@ -69,6 +95,16 @@ yargs(process.argv.slice(2))
       }
 
       const context = getContext(argv);
+
+      process.on('SIGINT', () => {
+        process.exit(130);
+      });
+
+      // The command will end up here, handle all cleanup things
+      process.on('exit', (code) => {
+        context.cleanup.start();
+        process.exit(code);
+      });
 
       return Promise.resolve(context.url)
         .then(getTracks(context))

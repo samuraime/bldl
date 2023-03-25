@@ -38,16 +38,10 @@ async function mergeTracks(context, {metadata, tracks}) {
   const ffmpegCommand = `ffmpeg ${inputs} -c:v copy -c:a copy "${escapeQuote(output)}" -y`;
 
   await promisifiedExec(ffmpegCommand).catch((error) => {
+    context.keepTmpTracks = true; // Keep tmp tracks in case we'd like to merge them manually
+    
     throw new Error('Fail to merge tracks: \n' + error.message);
   });
-
-  if (!context.keepTmpTracks) {
-    await Promise.all(
-      tracks.map((track) => fs.unlink(track.path)),
-    ).catch(() => {
-      // Ignore the error
-    });
-  }
   
   return output;
 }
