@@ -38,7 +38,7 @@ function getPlayInfoFromPlayAPIResponse(data) {
 function getUGCPlayInfoFromScript(html) {
   const { data } = parseJsonFromFirstMatch(
     html,
-    /<script>window.__playinfo__=(.+?)<\/script>/s,
+    /<script>window.__playinfo__=(.+?)<\/script>/s
   );
 
   return getPlayInfoFromPlayAPIResponse(data);
@@ -47,7 +47,7 @@ function getUGCPlayInfoFromScript(html) {
 function getUGCMetadataFromScript(html) {
   const { videoData } = parseJsonFromFirstMatch(
     html,
-    /<script>window.__INITIAL_STATE__=(.+?);\(/s,
+    /<script>window.__INITIAL_STATE__=(.+?);\(/s
   );
 
   return {
@@ -61,10 +61,12 @@ function getUGCMediaInfo(credential, url) {
   return got
     .get(url, makeGotOptions(credential, url))
     .text()
-    .then((html) => Promise.all([
-      getUGCMetadataFromScript(html),
-      getUGCPlayInfoFromScript(html),
-    ]))
+    .then((html) =>
+      Promise.all([
+        getUGCMetadataFromScript(html),
+        getUGCPlayInfoFromScript(html),
+      ])
+    )
     .then(([metadata, { videos, audios }]) => ({
       metadata,
       videos,
@@ -75,12 +77,11 @@ function getUGCMediaInfo(credential, url) {
 const getPGCPlayParams = (episodeId) => (html) => {
   const { title, episodes } = parseJsonFromFirstMatch(
     html,
-    /<script\s+id="__NEXT_DATA__"\s+type="application\/json">(.+?)<\/script>/si,
-  )
-    .props.pageProps.dehydratedState.queries[0].state.data.mediaInfo;
+    /<script\s+id="__NEXT_DATA__"\s+type="application\/json">(.+?)<\/script>/is
+  ).props.pageProps.dehydratedState.queries[0].state.data.mediaInfo;
 
   const episode = episodeId
-    ? episodes.find(({ ep_id }) => ep_id.toString() === episodeId)
+    ? episodes.find(({ ep_id: id }) => id.toString() === episodeId)
     : episodes[0]; // Should be from a season, select first episode
 
   return {
@@ -97,7 +98,7 @@ const getPGCPlayParams = (episodeId) => (html) => {
       fnval: 4048,
     },
   };
-}
+};
 
 function getPGCPlayInfo(gotOptions) {
   return got
@@ -117,7 +118,7 @@ const getPGCEpisode = (episodeId) => (credential, url) => {
     .get(url, gotOptions)
     .text()
     .then(getPGCPlayParams(episodeId))
-    .then(({ metadata, playAPIParams }) => (
+    .then(({ metadata, playAPIParams }) =>
       Promise.all([
         metadata,
         getPGCPlayInfo({
@@ -125,52 +126,54 @@ const getPGCEpisode = (episodeId) => (credential, url) => {
           searchParams: playAPIParams,
         }),
       ])
-    ))
+    )
     .then(([metadata, { videos, audios }]) => ({
       metadata,
       videos,
       audios,
     }));
-}
+};
 
 function findMediaInfoHandler(url) {
-  let matches;
-
   // https://www.bilibili.com/video/BV1ac411E7jr
-  if (matches = /\/video\/BV(\w+)/.test(url)) { // UGC
+  if (/\/video\/BV\w+/.test(url)) {
+    // UGC
     return getUGCMediaInfo;
   }
 
   // https://www.bilibili.com/bangumi/play/ss12548
-  if (matches = /\/bangumi\/play\/ss(\d+)/) { // PGC Season
+  if (/\/bangumi\/play\/ss\d+/.test(url)) {
+    // PGC Season
     return getPGCEpisode();
   }
 
   // https://www.bilibili.com/bangumi/play/ep199612
-  if (matches = /\/bangumi\/play\/ep(\d+)/.test(url)) { // PGC Episode
-    return getPGCEpisode(matches[1]);
+  const episodeId = /\/bangumi\/play\/ep(\d+)/.test(url)?.[1];
+
+  if (episodeId) {
+    // PGC Episode
+    return getPGCEpisode(episodeId);
   }
 
-  throw new Error('Don\'t support to download streams from this type of URL');
+  throw new Error("Don't support to download streams from this type of URL");
 }
 
 function getBestVideoTracks(codec, tracks) {
-  return [...tracks].filter((track) => (
-    !codec || track.codec.startsWith(codec)
-  ));
+  return [...tracks].filter((track) => !codec || track.codec.startsWith(codec));
 }
 
 function getTracks(context, url) {
   const getMediaInfo = findMediaInfoHandler(url);
 
-  return getMediaInfo(context.credential, url)
-    .then(({ metadata, videos, audios }) => ({
+  return getMediaInfo(context.credential, url).then(
+    ({ metadata, videos, audios }) => ({
       metadata,
       tracks: [
         ...getBestVideoTracks(context.videoCodec, videos).slice(0, 1),
         ...audios.slice(0, 1),
       ],
-    }));
+    })
+  );
 }
 
 export default curry(getTracks);

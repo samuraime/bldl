@@ -28,21 +28,21 @@ async function getOutputPath(output, defaultFileName) {
   }
 }
 
-async function mergeTracks(context, {metadata, tracks}) {
+async function mergeTracks(context, { metadata, tracks }) {
   const output = await getOutputPath(context.output, `${metadata.title}.mp4`);
 
   const inputs = tracks
     .map((track) => `-i "${escapeQuote(track.path)}"`)
     .join(' ');
-
-  const ffmpegCommand = `ffmpeg ${inputs} -c:v copy -c:a copy "${escapeQuote(output)}" -y`;
+  const escapedOutput = escapeQuote(output);
+  const ffmpegCommand = `ffmpeg ${inputs} -c:v copy -c:a copy "${escapedOutput}" -y`;
 
   await promisifiedExec(ffmpegCommand).catch((error) => {
     context.keepTmpTracks = true; // Keep tmp tracks in case we'd like to merge them manually
-    
-    throw new Error('Fail to merge tracks: \n' + error.message);
+
+    throw new Error(`Fail to merge tracks: \n${error.message}`);
   });
-  
+
   return output;
 }
 

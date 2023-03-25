@@ -1,5 +1,4 @@
-import fs from 'node:fs/promises';
-import { rmSync } from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import cliProgress from 'cli-progress';
 import curry from 'lodash/fp/curry.js';
@@ -16,17 +15,18 @@ function downloadTracks(context, { metadata, tracks }) {
       hideCursor: true,
       format: ' {bar} | {title} | {mimeType} | {codec} | {transferred}/{size}',
     },
-    cliProgress.Presets.shades_grey,
+    cliProgress.Presets.shades_grey
   );
 
   const saveToDirectory = path.resolve(context.tmpDir, metadata.title);
 
   context.cleanup.register(() => {
-    if (context.keepTmpTracks) { // Lazy evaluation in case we'd like to keep them in some error cases
-      return;
+    // Lazy evaluation in case we'd like to keep them in some error cases
+    if (context.keepTmpTracks) {
+      return undefined;
     }
 
-    return rmSync(saveToDirectory, { recursive: true });
+    return fs.rmSync(saveToDirectory, { recursive: true });
   });
 
   const downloadedTracks = tracks.map((track) => {
@@ -51,19 +51,19 @@ function downloadTracks(context, { metadata, tracks }) {
         });
       },
     })
-      .then(((downloadedTrackFile) => ({
+      .then((downloadedTrackFile) => ({
         ...track,
         path: downloadedTrackFile,
-      })))
+      }))
       .finally(() => {
         bar.stop();
       });
   });
 
   return Promise.all(downloadedTracks)
-    .then((tracks) => ({
+    .then((updatedTracks) => ({
       metadata,
-      tracks,
+      tracks: updatedTracks,
     }))
     .finally(() => {
       multiBar.stop();

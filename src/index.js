@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint no-shadow: ["error", { "allow": ["yargs"] }] */
+
 import yargs from 'yargs';
 import { execSync } from 'node:child_process';
 import os from 'node:os';
@@ -9,8 +11,6 @@ import getTracks from './getTracks.js';
 import downloadTracks from './downloadTracks.js';
 import mergeTracks from './mergeTracks.js';
 
-
-
 function makeCleanUpManager() {
   const handlers = [];
 
@@ -19,13 +19,13 @@ function makeCleanUpManager() {
   }
 
   async function start() {
-    try {
-      for (const handler of handlers) {
+    handlers.forEach((handler) => {
+      try {
         handler(); // Have to be sync function since cleanup will be called in `exit` event
+      } catch {
+        // Ignore cleanup errors
       }
-    } catch {
-      // Ignore cleanup errors
-    }
+    });
   }
 
   return {
@@ -52,6 +52,7 @@ function getContext(argv) {
   };
 }
 
+// eslint-disable-next-line no-unused-expressions
 yargs(process.argv.slice(2))
   .scriptName('bldl')
   .command(
@@ -73,7 +74,8 @@ yargs(process.argv.slice(2))
         })
         .option('video-codec', {
           type: 'string',
-          describe: 'Filter out video tracks by given codec, e.g. avc, hevc, av1, or more exact codec string',
+          describe:
+            'Filter out video tracks by given codec, e.g. avc, hevc, av1, or more exact codec string',
         })
         .option('tmp-dir', {
           type: 'string',
@@ -84,13 +86,16 @@ yargs(process.argv.slice(2))
           type: 'boolean',
           describe: 'Whether to keep temporary tracks after merging',
           default: false,
-        })
+        });
     },
     (argv) => {
       try {
         execSync('ffmpeg -version');
       } catch {
-        console.error('ffmpeg is required for merging tracks, try to download from https://ffmpeg.org/download.html');
+        // eslint-disable-next-line no-console
+        console.error(
+          'ffmpeg is required for merging tracks, try to download from https://ffmpeg.org/download.html'
+        );
         process.exit(1);
       }
 
@@ -110,32 +115,36 @@ yargs(process.argv.slice(2))
         .then(getTracks(context))
         .then(downloadTracks(context))
         .then(mergeTracks(context))
-        .then(console.log)
+        .then(console.log) // eslint-disable-line no-console
         .catch((error) => {
-          console.error(error.message);
+          console.error(error.message); // eslint-disable-line no-console
           process.exit(1);
         });
-    },
+    }
   )
   .command(
     'set-credential <credential>',
     'Store credential for downloading streams',
     (yargs) => {
-      yargs
-        .positional('credential', {
-          type: 'string',
-          describe: 'Bilibili SESSDATA from browser Cookies',
-        });
+      yargs.positional('credential', {
+        type: 'string',
+        describe: 'Bilibili SESSDATA from browser Cookies',
+      });
     },
-    (argv) => {
-      return settings.setCredential(argv.credential)
+    (argv) =>
+      settings
+        .setCredential(argv.credential)
         .then((user) => {
-          console.log(`User: ${user.name}, VIP: ${user.isVip}`);
+          // eslint-disable-next-line no-console
+          console.log(
+            `Stored credential for user: ${user.name}, VIP: ${
+              user.isVip ? 'yes' : 'no'
+            }`
+          );
         })
         .catch((error) => {
+          // eslint-disable-next-line no-console
           console.error(error.message);
           process.exit(1);
-        });
-    },
-  )
-  .argv;
+        })
+  ).argv;
