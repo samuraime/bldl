@@ -10,8 +10,26 @@ function escapeQuote(string) {
   return string.replace(/"/, '\\"');
 }
 
+async function getOutputPath(output, defaultFileName) {
+  if (!output) {
+    return path.resolve(defaultFileName);
+  }
+
+  try {
+    const stats = await fs.stat(output);
+
+    if (stats.isDirectory()) {
+      return path.resolve(output, defaultFileName);
+    }
+
+    return path.resolve(output); // Overwrite
+  } catch {
+    return path.resolve(output);
+  }
+}
+
 async function mergeTracks(context, {metadata, tracks}) {
-  const output = context.output ?? path.resolve(`${metadata.title}.mp4`);
+  const output = await getOutputPath(context.output, `${metadata.title}.mp4`);
 
   const inputs = tracks
     .map((track) => `-i "${escapeQuote(track.path)}"`)
@@ -19,8 +37,8 @@ async function mergeTracks(context, {metadata, tracks}) {
 
   const ffmpegCommand = `ffmpeg ${inputs} -c:v copy -c:a copy "${escapeQuote(output)}" -y`;
 
-  await promisifiedExec(ffmpegCommand).catch(() => {
-    throw new Error('Fail to merge tracks');
+  await promisifiedExec(ffmpegCommand).catch((error) => {
+    throw new Error('Fail to merge tracks: \n' + error.message);
   });
 
   if (!context.keepTmpTracks) {
