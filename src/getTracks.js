@@ -54,6 +54,7 @@ function getUGCMetadataFromScript(html) {
     title: videoData.title,
     cover: videoData.pic,
     duration: videoData.duration,
+    bvid: videoData.bvid,
   };
 }
 
@@ -91,6 +92,7 @@ const getPGCPlayParams = (episodeId) => (html) => {
         .join('-'),
       cover: episode.cover,
       duration: episode.duration,
+      bvid: episode.bvid,
     },
     playAPIParams: {
       aid: episode.aid,

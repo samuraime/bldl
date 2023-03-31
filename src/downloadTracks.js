@@ -18,7 +18,7 @@ function downloadTracks(context, { metadata, tracks }) {
     cliProgress.Presets.shades_grey
   );
 
-  const saveToDirectory = path.resolve(context.tmpDir, metadata.title);
+  const saveToDirectory = path.resolve(context.tmpDir, metadata.bvid);
 
   context.cleanup.register(() => {
     // Lazy evaluation in case we'd like to keep them in some error cases
