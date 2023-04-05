@@ -43,7 +43,11 @@ Options:
 
 ```sh
 bldl set-credential {SESSDATA_FROM_COOKIES} # Store Bilibli auth credential for downloading high quality streams
-bldl https://www.bilibili.com/video/BV1ac411E7jr
+
+bldl BV1ac411E7jr # UGC video
+bldl https://www.bilibili.com/video/BV1ac411E7jr  # UGC video
+bldl https://www.bilibili.com/bangumi/play/ep199612 # PGC episode
+bldl https://www.bilibili.com/bangumi/play/ss12548 # PGC season
 ```
 
 Or for one-off use:
