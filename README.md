@@ -44,8 +44,8 @@ Options:
 ```sh
 bldl set-credential {SESSDATA_FROM_COOKIES} # Store Bilibli auth credential for downloading high quality streams
 
-bldl BV1ac411E7jr # UGC video
-bldl https://www.bilibili.com/video/BV1ac411E7jr  # UGC video
+bldl BV1j4411W7F7 # UGC video
+bldl https://www.bilibili.com/video/BV1j4411W7F7  # UGC video
 bldl https://www.bilibili.com/bangumi/play/ep199612 # PGC episode
 bldl https://www.bilibili.com/bangumi/play/ss12548 # PGC season
 ```
@@ -53,7 +53,7 @@ bldl https://www.bilibili.com/bangumi/play/ss12548 # PGC season
 Or for one-off use:
 
 ```sh
-npx bldl --credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1ac411E7jr
+npx bldl --credential={SESSDATA_FROM_COOKIES} https://www.bilibili.com/video/BV1j4411W7F7
 ```
 
 ## License

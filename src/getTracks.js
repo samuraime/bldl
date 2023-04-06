@@ -141,12 +141,12 @@ const makePGCEpisodeHandler = (url, episodeId) =>
   };
 
 function findMediaInfoHandler(url) {
-  // UGC video bvid, BV1ac411E7jr
+  // UGC video bvid, BV1j4411W7F7
   if (/^BV\w+$/.test(url)) {
     return makeUGCMediaInfoHandler(`https://www.bilibili.com/video/${url}`);
   }
 
-  // UGC video, https://www.bilibili.com/video/BV1ac411E7jr
+  // UGC video, https://www.bilibili.com/video/BV1j4411W7F7
   if (/\/video\/BV\w+/.test(url)) {
     return makeUGCMediaInfoHandler(url);
   }
