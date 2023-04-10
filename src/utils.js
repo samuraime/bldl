@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { createWriteStream } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import stream from 'node:stream';
 import { promisify } from 'node:util';
@@ -20,14 +21,17 @@ function makeDirectoryIfNeeded(directoryPath) {
 
 export function makeGotOptions(credential, url) {
   const defaultOrigin = 'https://www.bilibili.com';
+  const userAgent =
+    os.platform() === 'darwin'
+      ? 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+      : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36';
 
   return {
     headers: {
       cookie: `SESSDATA=${credential}`,
       origin: url ? new URL(url).origin : defaultOrigin,
       referer: url || defaultOrigin,
-      'user-agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+      'user-agent': userAgent,
     },
   };
 }
