@@ -42,7 +42,7 @@ async function mergeTracks(context, { metadata, tracks }) {
   const output = await getOutputPath(context.output, `${metadata.title}.mp4`);
 
   const inputs = tracks.map((track) => `-i "${track.path}"`).join(' ');
-  const ffmpegCommand = `ffmpeg ${inputs} -c:v copy -c:a copy "${output}" -y`;
+  const ffmpegCommand = `ffmpeg ${inputs} -c copy "${output}" -y`;
 
   await promisifiedExec(ffmpegCommand).catch((error) => {
     context.keepTmpTracks = true; // Keep tmp tracks in case we'd like to merge them manually
