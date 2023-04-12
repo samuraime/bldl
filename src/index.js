@@ -45,6 +45,7 @@ function getContext(argv) {
     url: argv.url,
     output: argv.output ? path.resolve(argv.output) : undefined,
     credential: argv.credential || settings.getCredential(),
+    interactive: argv.interactive,
     videoCodec: argv.videoCodec && videoCodecAlias[argv.videoCodec],
     tmpDir: path.resolve(argv.tmpDir),
     keepTmpTracks: argv.keepTmpTracks,
@@ -71,6 +72,12 @@ yargs(process.argv.slice(2))
         .option('credential', {
           type: 'string',
           describe: 'Bilibili SESSDATA from browser Cookies',
+        })
+        .option('interactive', {
+          alias: 'i',
+          type: 'boolean',
+          describe: 'Interactively download streams',
+          default: false,
         })
         .option('video-codec', {
           type: 'string',

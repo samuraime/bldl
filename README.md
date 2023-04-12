@@ -30,6 +30,8 @@ Positionals:
 Options:
   --version          Show version number                               [boolean]
   --credential       Bilibili SESSDATA from browser Cookies             [string]
+  -i, --interactive      Interactively download streams
+                                                      [boolean] [default: false]
   --video-codec      Filter out video tracks by given codec, e.g. avc, hevc, av1
                      , or more exact codec string                       [string]
   --tmp-dir          Directory to save temporary tracks

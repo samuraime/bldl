@@ -1,6 +1,8 @@
 import got from 'got';
+import inquirer from 'inquirer';
 import curry from 'lodash/fp/curry.js';
 import { makeGotOptions } from './utils.js';
+import { formatTrack } from './formats.js';
 
 function parseJsonFromFirstMatch(string, regexp) {
   const matches = string.match(regexp);
@@ -170,17 +172,56 @@ function getBestVideoTracks(codec, tracks) {
   return [...tracks].filter((track) => !codec || track.codec.startsWith(codec));
 }
 
+function getBestTracks(videos, audios, filter) {
+  return [
+    ...getBestVideoTracks(filter.videoCodec, videos).slice(0, 1),
+    ...audios.slice(0, 1),
+  ];
+}
+
+function selectBestTracks(videos, audios) {
+  const questions = [
+    {
+      type: 'list',
+      name: 'video',
+      message: 'Select a video stream to download',
+      choices: videos.map((video, index) => ({
+        name: formatTrack(video),
+        value: index,
+      })),
+      loop: false,
+    },
+    {
+      type: 'list',
+      name: 'audio',
+      message: 'Select an audio stream to download',
+      choices: audios.map((audio, index) => ({
+        name: formatTrack(audio),
+        value: index,
+      })),
+      loop: false,
+    },
+  ];
+
+  return inquirer
+    .prompt(questions)
+    .then((answers) => [videos[answers.video], audios[answers.audio]]);
+}
+
 function getTracks(context, url) {
   const getMediaInfo = findMediaInfoHandler(url);
 
   return getMediaInfo(context.credential).then(
-    ({ metadata, videos, audios }) => ({
-      metadata,
-      tracks: [
-        ...getBestVideoTracks(context.videoCodec, videos).slice(0, 1),
-        ...audios.slice(0, 1),
-      ],
-    })
+    async ({ metadata, videos, audios }) => {
+      const bestTracks = context.interactive
+        ? await selectBestTracks(videos, audios)
+        : getBestTracks(videos, audios, { videoCodec: context.videoCodec });
+
+      return {
+        metadata,
+        tracks: bestTracks,
+      };
+    }
   );
 }
 

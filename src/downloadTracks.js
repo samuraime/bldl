@@ -3,6 +3,7 @@ import path from 'node:path';
 import cliProgress from 'cli-progress';
 import curry from 'lodash/fp/curry.js';
 import { downloadTrack } from './utils.js';
+import { formatTrack } from './formats.js';
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -13,7 +14,7 @@ function downloadTracks(context, { metadata, tracks }) {
     {
       clearOnComplete: false,
       hideCursor: true,
-      format: ' {bar} | {title} | {mimeType} | {codec} | {transferred}/{size}',
+      format: ' {bar} | {title} | {track} | {transferred}/{size}',
     },
     cliProgress.Presets.shades_grey
   );
@@ -34,8 +35,7 @@ function downloadTracks(context, { metadata, tracks }) {
   const downloadedTracks = tracks.map((track) => {
     const bar = multiBar.create(1, 0, {
       title: metadata.title,
-      mimeType: track.mimeType,
-      codec: track.codec,
+      track: formatTrack(track),
       transferred: 0,
       size: 'Unknown',
     });
