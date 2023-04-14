@@ -1,8 +1,8 @@
 import settings from '../settings.js';
 
 export default {
-  command: 'set-credential <credential>',
-  description: 'Store credential for downloading streams',
+  command: 'login <credential>',
+  description: 'Login to download higher quality streams',
   builder: (yargs) => {
     yargs.positional('credential', {
       type: 'string',
@@ -13,12 +13,10 @@ export default {
     settings
       .setCredential(argv.credential)
       .then((user) => {
+        const type = user.isVip ? 'VIP user' : 'user';
+
         // eslint-disable-next-line no-console
-        console.log(
-          `Stored credential for user: ${user.name}, VIP: ${
-            user.isVip ? 'yes' : 'no'
-          }`
-        );
+        console.log(`Logged in as ${type}: ${user.name}`);
       })
       .catch((error) => {
         // eslint-disable-next-line no-console

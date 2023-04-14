@@ -20,9 +20,9 @@ npm install -g bldl
 
 ```
 Commands:
-  bldl <url> [output]               Download stream                    [default]
-  bldl set-credential <credential>  Store credential for downloading streams
-  bldl whoami                       Display Bilibili username
+  bldl <url> [output]      Download stream                             [default]
+  bldl login <credential>  Login to download higher quality streams
+  bldl whoami              Display Bilibili username
 
 Positionals:
   url     URL to download stream from                                   [string]
@@ -45,7 +45,7 @@ Options:
 ### Examples
 
 ```sh
-bldl set-credential {SESSDATA_FROM_COOKIES} # Store Bilibli auth credential for downloading high quality streams
+bldl login {SESSDATA_FROM_COOKIES} # Store Bilibli auth credential for downloading high quality streams
 
 bldl BV1j4411W7F7 # UGC video
 bldl https://www.bilibili.com/video/BV1j4411W7F7  # UGC video
