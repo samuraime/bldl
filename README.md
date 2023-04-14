@@ -22,6 +22,7 @@ npm install -g bldl
 Commands:
   bldl <url> [output]               Download stream                    [default]
   bldl set-credential <credential>  Store credential for downloading streams
+  bldl whoami                       Display Bilibili username
 
 Positionals:
   url     URL to download stream from                                   [string]

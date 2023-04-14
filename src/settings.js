@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import got from 'got';
-import { makeGotOptions } from './utils.js';
+import api from './bilibili/api.js';
 
 const keys = {
   credential: 'credential',
@@ -33,28 +32,9 @@ function getItem(key) {
   return getSettings()[key];
 }
 
-function getUser(credential) {
-  return got
-    .get(
-      'https://api.bilibili.com/x/web-interface/nav',
-      makeGotOptions(credential)
-    )
-    .json()
-    .then(({ data }) => {
-      if (!data.isLogin) {
-        throw new Error(`Invalid credential: ${credential}`);
-      }
-
-      return {
-        name: data.uname,
-        isVip: !!data.vipStatus,
-      };
-    });
-}
-
 export default {
   async setCredential(credential) {
-    const user = await getUser(credential);
+    const user = await api.getUser(credential);
 
     setItem(keys.credential, credential);
 
