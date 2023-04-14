@@ -42,6 +42,7 @@ function getContext(argv) {
     credential: argv.credential || settings.getCredential(),
     interactive: argv.interactive,
     videoCodec: argv.videoCodec && videoCodecAlias[argv.videoCodec],
+    audioCodec: argv.audioCodec,
     tmpDir: path.resolve(argv.tmpDir),
     keepTmpTracks: argv.keepTmpTracks,
     cleanup: makeCleanUpManager(),
@@ -75,6 +76,10 @@ export default {
         type: 'string',
         describe:
           'Filter out video tracks by given codec, e.g. avc, hevc, av1, or more exact codec string',
+      })
+      .option('audio-codec', {
+        type: 'string',
+        describe: 'Filter out audio tracks by given codec',
       })
       .option('tmp-dir', {
         type: 'string',

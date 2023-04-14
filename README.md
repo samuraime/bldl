@@ -35,6 +35,7 @@ Options:
                                                       [boolean] [default: false]
   --video-codec      Filter out video tracks by given codec, e.g. avc, hevc, av1
                      , or more exact codec string                       [string]
+  --audio-codec      Filter out audio tracks by given codec             [string]
   --tmp-dir          Directory to save temporary tracks
                                          [string] [default: "{OS_TMP_DIR}/bldl"]
   --keep-tmp-tracks  Whether to keep temporary tracks after merging

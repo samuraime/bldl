@@ -168,20 +168,17 @@ function findMediaInfoHandler(url) {
   throw new Error("Don't support to download streams from this type of URL");
 }
 
-function getBestVideoTracks(codec, tracks) {
-  return [...tracks].filter((track) => !codec || track.codec.startsWith(codec));
+function filterTracksByCodec(codec, tracks) {
+  return tracks.filter((track) => !codec || track.codec.startsWith(codec));
 }
 
-function getBestTracks(videos, audios, filter) {
-  return [
-    ...getBestVideoTracks(filter.videoCodec, videos).slice(0, 1),
-    ...audios.slice(0, 1),
-  ];
+function getBestTracks(videos, audios) {
+  return [videos.slice(0, 1), audios.slice(0, 1)];
 }
 
 function selectBestTracks(videos, audios) {
   const questions = [
-    {
+    !!videos.length && {
       type: 'list',
       name: 'video',
       message: 'Select a video stream to download',
@@ -191,7 +188,7 @@ function selectBestTracks(videos, audios) {
       })),
       loop: false,
     },
-    {
+    !!audios.length && {
       type: 'list',
       name: 'audio',
       message: 'Select an audio stream to download',
@@ -201,11 +198,13 @@ function selectBestTracks(videos, audios) {
       })),
       loop: false,
     },
-  ];
+  ].filter(Boolean);
 
   return inquirer
     .prompt(questions)
-    .then((answers) => [videos[answers.video], audios[answers.audio]]);
+    .then((answers) =>
+      [videos[answers.video], audios[answers.audio]].filter(Boolean)
+    );
 }
 
 function getTracks(context, url) {
@@ -213,9 +212,13 @@ function getTracks(context, url) {
 
   return getMediaInfo(context.credential).then(
     async ({ metadata, videos, audios }) => {
-      const bestTracks = context.interactive
-        ? await selectBestTracks(videos, audios)
-        : getBestTracks(videos, audios, { videoCodec: context.videoCodec });
+      const getBestTracksFn = context.interactive
+        ? selectBestTracks
+        : getBestTracks;
+      const bestTracks = await getBestTracksFn(
+        filterTracksByCodec(context.videoCodec, videos),
+        filterTracksByCodec(context.audioCodec, audios)
+      );
 
       return {
         metadata,
