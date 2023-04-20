@@ -173,7 +173,7 @@ function filterTracksByCodec(codec, tracks) {
 }
 
 function getBestTracks(videos, audios) {
-  return [videos.slice(0, 1), audios.slice(0, 1)];
+  return [...videos.slice(0, 1), ...audios.slice(0, 1)];
 }
 
 function selectBestTracks(videos, audios) {

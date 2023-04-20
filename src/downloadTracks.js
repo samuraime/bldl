@@ -5,6 +5,10 @@ import curry from 'lodash/fp/curry.js';
 import { downloadTrack } from './utils.js';
 import { formatTrack, formatFileSize } from './formats.js';
 
+function shortTitle(title) {
+  return title.length > 16 ? title.substring(0, 16).concat('...') : title;
+}
+
 function downloadTracks(context, { metadata, tracks }) {
   const multiBar = new cliProgress.MultiBar(
     {
@@ -30,7 +34,7 @@ function downloadTracks(context, { metadata, tracks }) {
 
   const downloadedTracks = tracks.map((track) => {
     const bar = multiBar.create(1, 0, {
-      title: metadata.title,
+      title: shortTitle(metadata.title),
       track: formatTrack(track),
       transferred: 0,
       size: 'Unknown',
